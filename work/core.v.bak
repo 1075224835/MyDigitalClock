@@ -1,0 +1,70 @@
+module core(clk_1HZ,clk_2HZ,S1,S2,S3,S4,S5,S6,S7,S8,hour_a,hour_b,min_a,min_b,sec_a,sec_b,led);
+input clk_1HZ,clk_2HZ,S1,S2,S3,S4,S5,S6,S7,S8;	
+output reg [5:0] hour_a,hour_b,min_a,min_b,sec_a,sec_b;
+output reg led;
+
+reg[6:0] hour=11,min=59,sec=40,count=0;
+
+always @(posedge clk_1HZ)
+
+begin 
+    if(S1==1) begin sec<=0;min<=0;hour<=0;end
+    if(S2==1) count<=count+1;
+    if(count%2==0)
+		if(sec<60) sec<=sec+1;
+		else 
+			begin 
+				sec<=0;
+				if(min<60) min<=min+1;
+				else
+				begin
+				    min<=0;
+					if(hour<11) hour<=hour+1;
+				 	else
+				       hour<=0;
+				end
+			end
+		
+	else
+		begin
+		if(S3==1)
+			if(hour<11) hour<=hour+1;
+			else hour<=0;
+	
+		if(S4==1)
+			if(hour>0) hour<=hour-1;
+			else hour<=0;
+	
+		if(S5==1)
+			if(min<59) min<=min+1;
+			else min<=0;
+	
+		if(S6==1)
+			if(min>1) min<=min-1;
+			else min<=0;
+	
+		if(S7==1)
+			if(sec<59) sec<=sec+1;
+			else sec<=0;
+	
+		if(S8==1)
+			if(sec>1) sec<=sec-1;
+		else sec<=0;
+		end
+	begin
+	hour_b<=hour%10;
+	hour_a<=hour-hour_b;
+	min_b<=min%10;
+	min_a<=(min-min_b)/10;
+	sec_b<=sec%10;
+	sec_a<=(sec-sec_b)/10;
+	end
+end
+always @(1)
+begin
+if(min==59&&sec>54)
+led<=clk_2HZ;
+else
+led<=0;
+end
+endmodule
